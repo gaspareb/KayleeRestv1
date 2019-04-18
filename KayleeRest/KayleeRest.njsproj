@@ -33,9 +33,9 @@
     <Compile Include="api-routes.js" />
     <Compile Include="app.js" />
     <Compile Include="database.js" />
-    <Compile Include="routes\auctions.js" />
+    <Compile Include="routes\reports.js" />
+    <Compile Include="routes\vehiclesMongo.js" />
     <Compile Include="routes\vehicles.js" />
-    <Compile Include="routes\vins.js" />
     <Content Include="package.json" />
     <Content Include="public\stylesheets\main.css" />
     <Content Include="README.md" />
