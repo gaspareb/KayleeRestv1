@@ -7,6 +7,7 @@
     <RootNamespace>KayleeRest</RootNamespace>
     <LastActiveSolutionConfig>Debug|Any CPU</LastActiveSolutionConfig>
     <SaveNodeJsSettingsInProjectFile>True</SaveNodeJsSettingsInProjectFile>
+    <NameOfLastUsedPublishProfile>Custom Profile</NameOfLastUsedPublishProfile>
   </PropertyGroup>
   <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
   <PropertyGroup>
@@ -37,6 +38,7 @@
     <Compile Include="routes\reports.js" />
     <Compile Include="routes\vehiclesMongo.js" />
     <Compile Include="routes\vehicles.js" />
+    <None Include="Custom Profile.pubxml" />
     <Content Include="package.json" />
     <Content Include="public\stylesheets\main.css" />
     <Content Include="README.md" />

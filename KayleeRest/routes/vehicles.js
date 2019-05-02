@@ -3,17 +3,20 @@ const express = require('express');
 const router = express.Router();
 const assert = require('assert');
 const app = express();
+var bodyParser = require('body-parser')
+var jsonParser = bodyParser.json()
 var dateFormat = require('dateformat');
 var sql = require("mysql");
 var pool = sql.createPool({
     connectionLimit: 100, //important
-    host: 'superiortechnologysolutions.net',
-    user: 'khzrfjky_kaylee',
-    password: 'j5~]**;Vn0b#',
-    database: 'khzrfjky_kayleeVehicles',
+    host: 'localhost',
+    port: '3306',
+    user: 'superior_kaylee',
+    password: 'pigQ5!45(+S3',
+    database: 'superior_vehicles',
     debug: false
 });
-
+app.use(bodyParser.json({ type: 'application/*+json' }))
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
@@ -25,18 +28,18 @@ app.use(function (req, res, next) {
 router.get('/', function (req, res) {
     pool.getConnection(function (err, connection) {
         if (err) {
-            res.status(500).send({ message: "${err}" });
+            res.status(500).send({ message: err });
             return;
         }
         console.log('GET ALL Vehicles VINS connected successfully to server @ ' + Date());
-        connection.query("select Distinct(VINNumber) from kayleeVehicles order by VINNumber ASC;", function (err, rows) {
+        connection.query("select Distinct(VINNumber) from kayleevehicles order by VINNumber ASC;", function (err, rows) {
             connection.release();
             if (!err) {
                 res.status(200).json(rows);
             }
         });
         connection.on('error', function (err) {
-            res.status(500).send({ message: "${err}" });
+            res.status(500).send({ message: "${err}:" + err });
             return;
         });
     });
@@ -46,24 +49,24 @@ router.get('/:VINNumber', function (req, res) {
     const data = req.params.VINNumber;
     pool.getConnection(function (err, connection) {
         if (err) {
-            res.status(500).send({ message: "${err}" });
+            res.status(500).send({ message: "${err}:" + err });
             return;
         }
         console.log("GET Vehicle " + data + " connected successfully to server @" + Date());
-        connection.query("select VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated from kayleeVehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
+        connection.query("select VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated from kayleevehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
             connection.release();
             if (!err) {
                 res.status(200).json(rows);
             }
         });
         connection.on('error', function (err) {
-            res.status(500).send({ message: "${err}" });
+            res.status(500).send({ message: "${err}:" + err });
             return;
         });
     });
 });
 
-router.post('/add/', function (req, res) {
+router.post('/add/',jsonParser, function (req, res) {
     var bodyData = req.body;
     var VINNumber = bodyData.VINNumber;
     var Year = bodyData.Year;
@@ -78,7 +81,7 @@ router.post('/add/', function (req, res) {
     var PartDescription = bodyData.PartDescription;
     var PartsCost = bodyData.PartsCost;
     var day = dateFormat(new Date(), "UTC:yyyy-mm-dd");
-    var query = "insert into kayleeVehicles (VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated) values " +
+    var query = "insert into kayleevehicles (VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated) values " +
         "('" + VINNumber + "','" + Year + "','" + Make + "','" + Model + "','" + Color + "','" + AuctionDate + "','" + ClosingDate + "','" + RunNumber + "','" + LaborDescription + "','" + LaborCost + "','" + PartDescription + "','" + PartsCost + "','" + day + "');";
     pool.getConnection(function (err, connection) {
         if (err) {
@@ -97,11 +100,9 @@ router.post('/add/', function (req, res) {
             return;
         });
     });
-
-
 });
 
-router.put('/update/', function (req, res) {
+router.put('/update/', jsonParser, function (req, res) {
     var bodyData = req.body;
     var VINNumber = bodyData.VINNumber;
     var Year = bodyData.Year;
@@ -115,11 +116,10 @@ router.put('/update/', function (req, res) {
     var LaborCost = bodyData.LaborCost;
     var PartDescription = bodyData.PartDescription;
     var PartsCost = bodyData.PartsCost;
-    var query = "UPDATE kayleeVehicles SET Year='" + Year + "', Make='" + Make + "', Model='" + Model +
+    var query = "UPDATE kayleevehicles SET Year='" + Year + "', Make='" + Make + "', Model='" + Model +
         "', Color='" + Color + "', AuctionDate='" + AuctionDate + "', ClosingDate='" + ClosingDate + "', RunNumber='" + RunNumber + "', LaborDescription='" + LaborDescription +
         "', LaborCost='" + LaborCost + "', PartDescription='" + PartDescription + "' , PartsCost='" + PartsCost +
         "'  WHERE VINNumber= '" + VINNumber + "';";
- 
     pool.getConnection(function (err, connection) {
         if (err) {
             res.status(500).send({ success: false, message: 'VINNumber ' + req.body.VINNumber + ' failed to update!' });
@@ -148,7 +148,7 @@ router.delete('/:VINNumber', function (req, res) {
             return;
         }
         console.log('DELETE  Vehicles VINS connected successfully to server @ ' + Date());
-        connection.query("DELETE FROM kayleeVehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
+        connection.query("DELETE FROM kayleevehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
             connection.release();
             if (!err) {
                 res.status(200).json({ success: true, message: 'VINNumber ' + data + ' has been deleted!' });

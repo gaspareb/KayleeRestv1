@@ -1,33 +1,32 @@
-﻿'use strict';
-const debug = require('debug');
-const express = require('express');
-const path = require('path');
+﻿var https = require('https');
+var fs = require('fs');
 const vehicles = require('./routes/vehicles');
 const reports = require('./routes/reports');
-const bodyParser = require("body-parser");
-const app = express();
-
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'pug');
-app.use(bodyParser.json());
-app.use(bodyParser.urlencoded({ extended: true }));
-app.use(express.static(path.join(__dirname, 'public')));
+var cors = require('cors');
+var express = require('express');
+var app = express();
+app.use(cors());
+app.use(cors({
+  origin: 'https://www.superiortechnologysolutions.net'
+}));
 app.use('/reports', reports);
 app.use('/vehicles', vehicles);
-
-app.set('port', process.env.PORT || 3000);
-
+app.use(express.json());
 app.use(function (req, res, next) {
-    res.header("Access-Control-Allow-Origin", "*");
-    res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
-    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
-    res.setHeader('Content-Type', 'application/json');
-    next();
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, PUT, POST, DELETE, OPTIONS");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+  res.setHeader('Content-Type', 'application/json');
+  next();
 });
+var options = {
+  key: fs.readFileSync('certs/privateKey.key'),
+  cert: fs.readFileSync('certs/certificate.crt')
+};
 
-var server = app.listen(app.get('port'), function () {
-    console.log('Express server listening on port ' + server.address().port);
-    debug('Express server listening on port ' + server.address().port);
-});
+https.createServer(options, app, function (req, res) {
+  res.writeHead(200);
+  res.end("hello world!");
+}).listen(3000);
 
-
+console.log("listening to port 3000");
