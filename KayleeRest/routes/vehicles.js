@@ -16,6 +16,7 @@ var pool = sql.createPool({
     database: 'superior_vehicles',
     debug: false
 });
+
 app.use(bodyParser.json({ type: 'application/*+json' }))
 app.use(function (req, res, next) {
     res.header("Access-Control-Allow-Origin", "*");

@@ -5,7 +5,6 @@ const auth = require('./routes/auth');
 var cors = require('cors');
 var express = require('express');
 var app = express();
-
 app.use('/reports', reports);
 app.use('/vehicles', vehicles);
 app.use('/auth', auth);
