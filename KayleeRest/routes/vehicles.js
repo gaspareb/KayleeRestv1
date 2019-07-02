@@ -54,10 +54,14 @@ router.get('/:VINNumber', function (req, res) {
             return;
         }
         console.log("GET Vehicle " + data + " connected successfully to server @" + Date());
-        connection.query("select VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated from kayleevehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
+        connection.query("select VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, PartDescription1, PartsCost1, PartDescription2, PartsCost2, PartDescription3, PartsCost3, PartDescription4, PartsCost4, PartDescription5, PartsCost5 + PartsCarryOver AS PartsCost5, DateCreated from kayleevehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
             connection.release();
             if (!err) {
-                res.status(200).json(rows);
+                if(rows.length > 0){
+                    res.status(200).json(rows);
+                }else{
+                    res.status(500).send({ message: "VIN: " + data + " does not exist or is mistyped!" });
+                }                
             }
         });
         connection.on('error', function (err) {
@@ -80,12 +84,60 @@ router.post('/add/',jsonParser, function (req, res) {
     var LaborDescription = bodyData.LaborDescription;
     var LaborCost = bodyData.LaborCost;
     var PartDescription = bodyData.PartDescription;
-    var PartsCost = bodyData.PartsCost;
+   
+    if (bodyData.PartsCost > 0){
+        var PartsCost = bodyData.PartsCost;
+    }else{
+        var PartsCost = 0;
+    };
+    //console.log(PartsCost);
+    var PartDescription1 = bodyData.PartDescription1;
+    if (bodyData.PartsCost1 > 0){
+        var PartsCost1 = bodyData.PartsCost1;
+    }else{
+        var PartsCost1 = 0;
+    };
+    //var PartsCost1 = bodyData.PartsCost1;
+    //console.log(PartsCost1);
+    var PartDescription2 = bodyData.PartDescription2;
+    if (bodyData.PartsCost2 > 0){
+        var PartsCost2 = bodyData.PartsCost2;
+    }else{
+        var PartsCost2 = 0;
+    };
+    //var PartsCost2 = bodyData.PartsCost2;
+    //console.log(PartsCost2);
+    var PartDescription3 = bodyData.PartDescription3;
+    if (bodyData.PartsCost3 > 0){
+        var PartsCost3 = bodyData.PartsCost3;
+    }else{
+        var PartsCost3 = 0;
+    };
+    //var PartsCost3 = bodyData.PartsCost3;
+    //console.log(PartsCost3);
+    var PartDescription4 = bodyData.PartDescription4;
+    if (bodyData.PartsCost4 > 0){
+        var PartsCost4 = bodyData.PartsCost4;
+    }else{
+        var PartsCost4 = 0;
+    };
+    //var PartsCost4 = bodyData.PartsCost4;
+    //console.log(PartsCost4);
+    var PartDescription5 = bodyData.PartDescription5;
+    if (bodyData.PartsCost5 > 0){
+        var PartsCost5 = bodyData.PartsCost5;
+    }else{
+        var PartsCost5 = 0;
+    };
+    //var PartsCost5 = bodyData.PartsCost5;
+   //console.log(PartsCost5);
     var day = dateFormat(new Date(), "UTC:yyyy-mm-dd");
-    var query = "insert into kayleevehicles (VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, DateCreated) values " +
-        "('" + VINNumber + "','" + Year + "','" + Make + "','" + Model + "','" + Color + "','" + AuctionDate + "','" + ClosingDate + "','" + RunNumber + "','" + LaborDescription + "','" + LaborCost + "','" + PartDescription + "','" + PartsCost + "','" + day + "');";
-    pool.getConnection(function (err, connection) {
+    var query = "insert into kayleevehicles (VINNumber, Year, Make, Model, Color, AuctionDate, ClosingDate, RunNumber, LaborDescription, LaborCost, PartDescription, PartsCost, PartDescription1, PartsCost1, PartDescription2, PartsCost2, PartDescription3, PartsCost3, PartDescription4, PartsCost4, PartDescription5, PartsCost5, DateCreated) values " +
+        "('" + VINNumber + "','" + Year + "','" + Make + "','" + Model + "','" + Color + "','" + AuctionDate + "','" + ClosingDate + "','" + RunNumber + "','" + LaborDescription + "','" + LaborCost + "','" + PartDescription + "','" + PartsCost + "','" + PartDescription1 + "','" + PartsCost1 + "','" + PartDescription2 + "','" + PartsCost2 + "','" + PartDescription3 + "','" + PartsCost3 + "','" + PartDescription4 + "','" + PartsCost4 + "','" + PartDescription5 + "','" + PartsCost5 + "','" + day + "');";
+        //console.log('query' + query);
+        pool.getConnection(function (err, connection) {
         if (err) {
+            console.log('Connection error:' + err);
             res.status(500).send({ success: false, message: 'VINNumber ' + VINNumber + ' already exists!' });
             return;
         }
@@ -94,9 +146,13 @@ router.post('/add/',jsonParser, function (req, res) {
             connection.release();
             if (!err) {
                 res.status(200).send({ success: true, message: 'VINNumber ' + VINNumber + ' has been added!' });
+            }else{
+                res.status(500).send({ success: false, message: 'VINNumber ' + VINNumber + ' already exists!' });
+                console.log('add error: ' + query);
             }
         });
         connection.on('error', function (err) {
+            console.log('err3');
             res.status(500).send({ success: false, message: 'VINNumber ' + VINNumber + ' already exists!' });
             return;
         });
@@ -117,12 +173,30 @@ router.put('/update/', jsonParser, function (req, res) {
     var LaborCost = bodyData.LaborCost;
     var PartDescription = bodyData.PartDescription;
     var PartsCost = bodyData.PartsCost;
+    var PartDescription1 = bodyData.PartDescription1;
+    var PartsCost1 = bodyData.PartsCost1;
+    var PartDescription2 = bodyData.PartDescription2;
+    var PartsCost2 = bodyData.PartsCost2;
+    var PartDescription3 = bodyData.PartDescription3;
+    var PartsCost3 = bodyData.PartsCost3;
+    var PartDescription4 = bodyData.PartDescription4;
+    var PartsCost4 = bodyData.PartsCost4;
+    var PartDescription5 = bodyData.PartDescription5;
+    var PartsCost5 = bodyData.PartsCost5;
     var query = "UPDATE kayleevehicles SET Year='" + Year + "', Make='" + Make + "', Model='" + Model +
         "', Color='" + Color + "', AuctionDate='" + AuctionDate + "', ClosingDate='" + ClosingDate + "', RunNumber='" + RunNumber + "', LaborDescription='" + LaborDescription +
-        "', LaborCost='" + LaborCost + "', PartDescription='" + PartDescription + "' , PartsCost='" + PartsCost +
+        "', LaborCost='" + LaborCost + 
+        "', PartDescription='" + PartDescription + "' , PartsCost='" + PartsCost +
+        "', PartDescription1='" + PartDescription1 + "' , PartsCost1='" + PartsCost1 +
+        "', PartDescription2='" + PartDescription2 + "' , PartsCost2='" + PartsCost2 +
+        "', PartDescription3='" + PartDescription3 + "' , PartsCost3='" + PartsCost3 +
+        "', PartDescription4='" + PartDescription4 + "' , PartsCost4='" + PartsCost4 +
+        "', PartDescription5='" + PartDescription5 + "' , PartsCost5='" + PartsCost5 +
         "'  WHERE VINNumber= '" + VINNumber + "';";
+        //console.log(query);
     pool.getConnection(function (err, connection) {
         if (err) {
+            console.log('Error A');
             res.status(500).send({ success: false, message: 'VINNumber ' + req.body.VINNumber + ' failed to update!' });
             return;
         }
@@ -130,10 +204,15 @@ router.put('/update/', jsonParser, function (req, res) {
         connection.query(query, function (err, rows) {
             connection.release();
             if (!err) {
+                //console.log('B');
                 res.status(200).send({ success: true, message: 'VINNumber ' + req.body.VINNumber + ' has been updated!' });
+            }else{
+                console.log('update error: ' + query);
+                res.status(500).send({ success: false, message: 'VINNumber ' + req.body.VINNumber + ' failed to update!' });
             }
         });
         connection.on('error', function (err) {
+            console.log('Error C');
             res.status(500).send({ success: false, message: 'VINNumber ' + req.body.VINNumber + ' failed to update!' });
             return;
         });
@@ -152,7 +231,15 @@ router.delete('/:VINNumber', function (req, res) {
         connection.query("DELETE FROM kayleevehicles WHERE VINNumber = '" + data + "';", function (err, rows) {
             connection.release();
             if (!err) {
-                res.status(200).json({ success: true, message: 'VINNumber ' + data + ' has been deleted!' });
+                console.log(rows.affectedRows);
+                if(rows.affectedRows > 0){
+                    res.status(200).json({ success: true, message: 'VINNumber ' + data + ' has been deleted!' });
+                }else{
+                    res.status(500).send({ message: "Cannot delete VIN: " + data + ", does not exist or is mistyped!" });
+                }                   
+            }else{
+                console.log('delete error: ' + "DELETE FROM kayleevehicles WHERE VINNumber = '" + data + "';");
+                res.status(500).send({ message: "Cannot delete VIN: " + data + ", does not exist or is mistyped!" });
             }
         });
         connection.on('error', function (err) {

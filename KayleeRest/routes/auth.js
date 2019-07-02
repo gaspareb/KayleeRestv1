@@ -32,7 +32,7 @@ router.post('/',jsonParser, function (req, res) {
     var query = "select password from authorization WHERE email = '" + email + "';"
     pool.getConnection(function (err, connection) {
         if (err) {
-            res.status(500).send({ success: false, message: 'No NODE Connection error!' });
+            res.status(500).send({ success: false, message: 'SQL Server NODE Connection error!' });
             return;
         }
         connection.query(query, function (err, rows) {
